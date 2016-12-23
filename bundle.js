@@ -58,13 +58,13 @@
 	
 	var _todos2 = _interopRequireDefault(_todos);
 	
-	__webpack_require__(180);
+	__webpack_require__(181);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	_reactDom2.default.render(_react2.default.createElement(
 	  'div',
-	  null,
+	  { className: 'conteiner' },
 	  _react2.default.createElement(
 	    'h1',
 	    null,
@@ -21504,6 +21504,10 @@
 	
 	var _todosItem2 = _interopRequireDefault(_todosItem);
 	
+	var _classnames = __webpack_require__(180);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
@@ -21522,10 +21526,26 @@
 	
 	    var _this = _possibleConstructorReturn(this, (Todos.__proto__ || Object.getPrototypeOf(Todos)).call(this, props));
 	
-	    _this.state = { value: [] };
+	    _this.state = {
+	      todos: [],
+	      indexEditField: false,
+	      allElem: true,
+	      activeElem: false,
+	      complitedElem: false,
+	      currentActive: 0,
+	      clear: false
+	    };
 	    _this.newElem = _this.newElem.bind(_this);
 	    _this.delElem = _this.delElem.bind(_this);
-	    //this.test = this.test.bind(this);
+	    _this.edit = _this.edit.bind(_this);
+	    _this.editingEnd = _this.editingEnd.bind(_this);
+	    _this.onBlur = _this.onBlur.bind(_this);
+	    _this.allElem = _this.allElem.bind(_this);
+	    _this.activeElem = _this.activeElem.bind(_this);
+	    _this.complitedElem = _this.complitedElem.bind(_this);
+	    _this.quantityActive = _this.quantityActive.bind(_this);
+	    _this.clearComplite = _this.clearComplite.bind(_this);
+	    _this.id = 0;
 	    return _this;
 	  }
 	
@@ -21533,8 +21553,15 @@
 	    key: 'newElem',
 	    value: function newElem(e) {
 	      if (e.key === 'Enter') {
-	        var newArr = [].concat(_toConsumableArray(this.state.value), [e.target.value]);
-	        this.setState({ value: newArr });
+	        var newTodos = [].concat(_toConsumableArray(this.state.todos), [{
+	          id: this.id++,
+	          value: e.target.value,
+	          check: false
+	        }]);
+	        this.setState({
+	          todos: newTodos,
+	          currentActive: this.state.currentActive + 1
+	        });
 	        e.target.value = '';
 	      }
 	    }
@@ -21542,54 +21569,167 @@
 	    key: 'delElem',
 	    value: function delElem(idx, event) {
 	      if (!event.button) {
-	        var newTodo = this.state.value.filter(function (e, i) {
+	        var newTodos = this.state.todos.filter(function (e, i) {
 	          return i !== idx;
 	        });
-	        this.setState({ value: newTodo });
+	        this.setState({
+	          todos: newTodos,
+	          currentActive: this.state.todos.length - 1
+	        });
 	      }
 	    }
 	  }, {
 	    key: 'edit',
-	    value: function edit(e, idx) {
-	      console.log(idx);
-	      e.persist();
-	      console.log(e);
-	      if (e.target.nextElementSibling.className === 'hidden') {
-	        e.target.nextElementSibling.className = 'editField';
-	        e.target.className = 'hidden';
-	      }
+	    value: function edit(idx) {
+	      this.setState({ indexEditField: idx });
 	    }
 	  }, {
 	    key: 'editingEnd',
 	    value: function editingEnd(e, idx) {
-	      console.log(idx);
 	      if (e.key === 'Enter') {
-	        e.target.className = 'hidden';
-	        e.target.previousElementSibling.className = 'editField';
+	        var newArr = this.state.todos.map(function (el, i) {
+	          if (i === idx) el.value = e.target.value;
+	          return el;
+	        });
+	        this.setState({ indexEditField: false });
 	      }
+	    }
+	  }, {
+	    key: 'onBlur',
+	    value: function onBlur() {
+	      this.setState({ indexEditField: false });
+	    }
+	  }, {
+	    key: 'allElem',
+	    value: function allElem() {
+	      this.setState({
+	        allElem: true,
+	        activeElem: false,
+	        complitedElem: false
+	      });
+	    }
+	  }, {
+	    key: 'activeElem',
+	    value: function activeElem() {
+	      this.setState({
+	        allElem: false,
+	        activeElem: true,
+	        complitedElem: false
+	      });
+	    }
+	  }, {
+	    key: 'complitedElem',
+	    value: function complitedElem() {
+	      this.setState({
+	        allElem: false,
+	        activeElem: false,
+	        complitedElem: true
+	      });
+	    }
+	  }, {
+	    key: 'quantityActive',
+	    value: function quantityActive(e, i) {
+	      var newTodos = this.state.todos.map(function (el, idx) {
+	        if (idx === i) el.check = !el.check;
+	        return el;
+	      });
+	      this.setState({ todos: newTodos });
+	      if (e.target.checked) {
+	        this.setState({ currentActive: this.state.currentActive - 1 });
+	      } else {
+	        this.setState({ currentActive: this.state.currentActive + 1 });
+	      }
+	    }
+	  }, {
+	    key: 'clearComplite',
+	    value: function clearComplite() {
+	      var newTodos = this.state.todos.filter(function (el) {
+	        if (!el.check) return el;
+	      });
+	      this.setState({ todos: newTodos });
 	    }
 	  }, {
 	    key: 'render',
 	    value: function render() {
 	      var _this2 = this;
 	
+	      var selectAll = (0, _classnames2.default)({
+	        "selectOption": this.state.allElem
+	      });
+	      var selectActive = (0, _classnames2.default)({
+	        "selectOption": this.state.activeElem
+	      });
+	      var selectComplite = (0, _classnames2.default)({
+	        "selectOption": this.state.complitedElem
+	      });
 	      return _react2.default.createElement(
 	        'div',
 	        null,
 	        _react2.default.createElement('input', { className: 'entryField', onKeyPress: this.newElem, type: 'text' }),
 	        _react2.default.createElement(
 	          'ul',
-	          null,
-	          this.state.value.map(function (el, idx) {
+	          { ref: function ref(ul) {
+	              _this2.ul = ul;
+	            } },
+	          this.state.todos.map(function (el, idx) {
 	            return _react2.default.createElement(_todosItem2.default, {
-	              key: idx,
+	              key: el.id,
 	              idx: idx,
-	              el: el,
-	              test: _this2.test,
+	              el: el.value,
 	              delElem: _this2.delElem,
 	              edit: _this2.edit,
-	              editingEnd: _this2.editingEnd });
+	              editingEnd: _this2.editingEnd,
+	              onBlur: _this2.onBlur,
+	              indexEditField: _this2.state.indexEditField,
+	              allElem: _this2.state.allElem,
+	              clear: _this2.state.clear,
+	              activeElem: _this2.state.activeElem,
+	              complitedElem: _this2.state.complitedElem,
+	              quantityActive: _this2.quantityActive
+	            });
 	          })
+	        ),
+	        _react2.default.createElement(
+	          'div',
+	          { className: 'options' },
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'currentActive' },
+	            _react2.default.createElement(
+	              'p',
+	              null,
+	              this.state.currentActive,
+	              ' item left'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'orderElem' },
+	            _react2.default.createElement(
+	              'p',
+	              { className: selectAll, onClick: this.allElem },
+	              'All'
+	            ),
+	            _react2.default.createElement(
+	              'p',
+	              { className: selectActive, onClick: this.activeElem },
+	              'Active'
+	            ),
+	            _react2.default.createElement(
+	              'p',
+	              { className: selectComplite, onClick: this.complitedElem },
+	              'Complited'
+	            )
+	          ),
+	          _react2.default.createElement(
+	            'div',
+	            { className: 'clear' },
+	            _react2.default.createElement(
+	              'p',
+	              { onClick: this.clearComplite },
+	              'Clear complite'
+	            )
+	          )
 	        )
 	      );
 	    }
@@ -21620,6 +21760,10 @@
 	
 	var _reactDom2 = _interopRequireDefault(_reactDom);
 	
+	var _classnames = __webpack_require__(180);
+	
+	var _classnames2 = _interopRequireDefault(_classnames);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -21636,10 +21780,14 @@
 	
 	    var _this = _possibleConstructorReturn(this, (TodosItem.__proto__ || Object.getPrototypeOf(TodosItem)).call(this, props));
 	
-	    _this.state = { indexEditField: '' };
 	    _this._delElem = _this._delElem.bind(_this);
 	    _this._edit = _this._edit.bind(_this);
 	    _this._editingEnd = _this._editingEnd.bind(_this);
+	    _this._onBlur = _this._onBlur.bind(_this);
+	    _this.onCheck = _this.onCheck.bind(_this);
+	    _this.state = {
+	      check: false
+	    };
 	    return _this;
 	  }
 	
@@ -21651,7 +21799,12 @@
 	  }, {
 	    key: '_edit',
 	    value: function _edit(e) {
-	      this.props.edit(e, this.props.idx);
+	      this.props.edit(this.props.idx);
+	    }
+	  }, {
+	    key: 'componentDidUpdate',
+	    value: function componentDidUpdate() {
+	      this.refs.editField.focus();
 	    }
 	  }, {
 	    key: '_editingEnd',
@@ -21659,21 +21812,50 @@
 	      this.props.editingEnd(e, this.props.idx);
 	    }
 	  }, {
+	    key: '_onBlur',
+	    value: function _onBlur(e) {
+	      this.props.onBlur();
+	      e.target.value = this.props.el;
+	    }
+	  }, {
+	    key: 'onCheck',
+	    value: function onCheck(e) {
+	      this.setState({ check: !this.state.check });
+	      this.props.quantityActive(e, this.props.idx);
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var editFieldClass = (0, _classnames2.default)('editField', {
+	        'hidden': this.props.idx !== this.props.indexEditField
+	      });
+	      var labelClass = (0, _classnames2.default)({
+	        'hidden': this.props.idx === this.props.indexEditField
+	      });
+	      var liClass = (0, _classnames2.default)({
+	        '': this.props.activeElem,
+	        'check': this.state.check,
+	        'hidden': this.props.activeElem && this.state.check || this.props.complitedElem && !this.state.check
+	      });
 	      return _react2.default.createElement(
 	        'li',
-	        null,
-	        _react2.default.createElement('input', { id: this.props.idx, type: 'checkbox' }),
+	        { className: liClass },
+	        _react2.default.createElement('input', { onClick: this.onCheck, type: 'checkbox' }),
 	        _react2.default.createElement('i', null),
 	        _react2.default.createElement(
 	          'label',
-	          { onDoubleClick: this._edit },
+	          { className: labelClass, onDoubleClick: this._edit },
 	          ' ',
 	          this.props.el,
 	          ' '
 	        ),
-	        _react2.default.createElement('input', { className: 'hidden', onKeyPress: this._editingEnd, defaultValue: this.props.el, type: 'text' }),
+	        _react2.default.createElement('input', {
+	          ref: 'editField',
+	          className: editFieldClass,
+	          onBlur: this._onBlur,
+	          onKeyPress: this._editingEnd,
+	          defaultValue: this.props.el
+	        }),
 	        _react2.default.createElement(
 	          'a',
 	          { onClick: this._delElem },
@@ -21692,13 +21874,67 @@
 /* 180 */
 /***/ function(module, exports, __webpack_require__) {
 
+	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
+	  Copyright (c) 2016 Jed Watson.
+	  Licensed under the MIT License (MIT), see
+	  http://jedwatson.github.io/classnames
+	*/
+	/* global define */
+	
+	(function () {
+		'use strict';
+	
+		var hasOwn = {}.hasOwnProperty;
+	
+		function classNames () {
+			var classes = [];
+	
+			for (var i = 0; i < arguments.length; i++) {
+				var arg = arguments[i];
+				if (!arg) continue;
+	
+				var argType = typeof arg;
+	
+				if (argType === 'string' || argType === 'number') {
+					classes.push(arg);
+				} else if (Array.isArray(arg)) {
+					classes.push(classNames.apply(null, arg));
+				} else if (argType === 'object') {
+					for (var key in arg) {
+						if (hasOwn.call(arg, key) && arg[key]) {
+							classes.push(key);
+						}
+					}
+				}
+			}
+	
+			return classes.join(' ');
+		}
+	
+		if (typeof module !== 'undefined' && module.exports) {
+			module.exports = classNames;
+		} else if (true) {
+			// register as 'classnames', consistent with npm package name
+			!(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function () {
+				return classNames;
+			}.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+		} else {
+			window.classNames = classNames;
+		}
+	}());
+
+
+/***/ },
+/* 181 */
+/***/ function(module, exports, __webpack_require__) {
+
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(181);
+	var content = __webpack_require__(182);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
-	var update = __webpack_require__(183)(content, {});
+	var update = __webpack_require__(184)(content, {});
 	if(content.locals) module.exports = content.locals;
 	// Hot Module Replacement
 	if(false) {
@@ -21715,21 +21951,21 @@
 	}
 
 /***/ },
-/* 181 */
+/* 182 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(182)();
+	exports = module.exports = __webpack_require__(183)();
 	// imports
 	
 	
 	// module
-	exports.push([module.id, ".entryField, li {\n  width: 20em;\n  font-size: 1.5em;\n  padding: .5em;\n  background-color: white;\n  border: none;\n  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.5); }\n\n.hidden {\n  display: none; }\n\nbody {\n  color: cadetblue;\n  background-color: floralwhite; }\n\n.entryField {\n  margin: 0; }\n\n.editField {\n  position: absolute;\n  top: 50%;\n  left: 1.73em;\n  font-size: 1em;\n  padding: .1em;\n  margin-top: -0.77em;\n  width: 17.5em;\n  font-family: serif;\n  color: cadetblue; }\n\nul {\n  list-style: none;\n  margin: 0;\n  padding: 0; }\n\nli {\n  display: flex;\n  position: relative;\n  flex-direction: row;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  align-items: center; }\n\nlabel {\n  -webkit-user-select: none;\n  width: 17.5em;\n  cursor: pointer; }\n\ni {\n  content: url('data:image/svg+xml;utf8,<svg fill=\"#000000\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z\"/><path d=\"M0 0h24v24H0z\" fill=\"none\"/></svg>'); }\n\na {\n  cursor: pointer;\n  font-family: sans-serif;\n  color: darkred; }\n  a:hover {\n    color: red; }\n\ninput[type=\"checkbox\"] {\n  transform: scale(1.5);\n  position: absolute;\n  opacity: 0;\n  top: 50%;\n  left: 1.05em;\n  margin-top: -0.45em; }\n\ninput[type=\"checkbox\"]:checked + i {\n  content: url('data:image/svg+xml;utf8,<svg fill=\"#000000\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z\"/></svg>'); }\n", ""]);
+	exports.push([module.id, "li, .entryField {\n  width: 20em;\n  font-size: 1.5em;\n  padding: .5em;\n  background-color: white;\n  border: none;\n  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.5); }\n\nbody {\n  color: #1c1c1c;\n  background-color: floralwhite; }\n\n.conteiner {\n  width: 31.5em;\n  margin: auto; }\n\nh1 {\n  color: firebrick;\n  text-align: center;\n  opacity: .3; }\n\nul {\n  list-style: none;\n  margin: 0;\n  padding: 0; }\n\nli {\n  display: flex;\n  position: relative;\n  flex-direction: row;\n  flex-wrap: wrap;\n  justify-content: space-between;\n  align-items: center; }\n\nlabel {\n  -webkit-user-select: none;\n  width: 17.5em; }\n\ni {\n  content: url('data:image/svg+xml;utf8,<svg fill=\"#000000\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z\"/><path d=\"M0 0h24v24H0z\" fill=\"none\"/></svg>'); }\n\na {\n  cursor: pointer;\n  font-family: sans-serif;\n  color: darkred; }\n  a:hover {\n    color: red; }\n\ninput[type=\"checkbox\"] {\n  transform: scale(1.5);\n  position: absolute;\n  opacity: 0;\n  top: 50%;\n  left: 1.05em;\n  margin-top: -0.45em; }\n\ninput[type=\"checkbox\"]:checked + i {\n  content: url('data:image/svg+xml;utf8,<svg fill=\"#b1b1b1\" height=\"24\" viewBox=\"0 0 24 24\" width=\"24\" xmlns=\"http://www.w3.org/2000/svg\"><path d=\"M0 0h24v24H0z\" fill=\"none\"/><path d=\"M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z\"/></svg>'); }\n\n.entryField {\n  margin: 0; }\n\n.editField {\n  position: absolute;\n  opacity: 1;\n  top: 50%;\n  left: 1.73em;\n  font-size: 1em;\n  padding: .1em;\n  margin-top: -0.77em;\n  width: 17.5em;\n  font-family: serif;\n  border: none;\n  box-shadow: inset 0 0.5px 0.5px rgba(0, 0, 0, 0.5); }\n\n.hidden {\n  display: none; }\n\n.check {\n  color: #b1b1b1;\n  background-color: #eeeeee; }\n  .check label {\n    text-decoration: line-through; }\n\n.options {\n  display: flex;\n  flex-direction: row;\n  flex-wrap: wrap;\n  justify-content: space-around;\n  align-items: center;\n  width: 31.5em;\n  height: 2em;\n  background-color: white;\n  margin: 0;\n  padding: 0;\n  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.5); }\n\n.currentActive {\n  cursor: default; }\n\n.orderElem {\n  display: inline-flex;\n  flex-direction: row;\n  flex-wrap: wrap;\n  justify-content: space-around;\n  align-items: center; }\n  .orderElem > p {\n    margin: 0 .2em;\n    padding: .35em .4em;\n    cursor: pointer;\n    border: none; }\n    .orderElem > p:hover {\n      border-radius: 5%;\n      background-color: rgba(96, 59, 143, 0.1); }\n\n.clear {\n  cursor: pointer; }\n\n.selectOption {\n  border: 1px solid #3b5f8f;\n  border-radius: 5%;\n  background-color: rgba(96, 59, 143, 0.5); }\n", ""]);
 	
 	// exports
 
 
 /***/ },
-/* 182 */
+/* 183 */
 /***/ function(module, exports) {
 
 	/*
@@ -21785,7 +22021,7 @@
 
 
 /***/ },
-/* 183 */
+/* 184 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/*
