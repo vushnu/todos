@@ -21655,7 +21655,6 @@
 	        if (idx === i) el.check = !el.check;
 	        return el;
 	      });
-	      console.log(newTodos);
 	      this.setState({ todos: newTodos });
 	      localStorage.setItem('todos', JSON.stringify(newTodos));
 	      if (e.target.checked) {
